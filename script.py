@@ -188,8 +188,8 @@ for key in wlength:
         word.append(chr(s[i,j]))
         j += 1
     word = ''.join(word)
-    wkey = (key, 0)
-    word_list[wkey] = [word, wlength[key]]
+    wkey = (key, 0, wlength[key])
+    word_list[wkey] = [word]
     
 for key in hlength:
     i, j = key
@@ -198,8 +198,8 @@ for key in hlength:
         word.append(chr(s[i,j]))
         i += 1
     word = ''.join(word)
-    wkey = (key, 1)
-    word_list[wkey] = [word, hlength[key]]
+    wkey = (key, 1, hlength[key])
+    word_list[wkey] = [word]
 
 dictionary = ['ABCD','BALADA','ANUGERAH','BERANGKAT']
 
@@ -209,5 +209,41 @@ for wkey in word_list:
     word = word_list[wkey][0]
     if word not in dictionary:
         penalty += 1
+
+
+# cross-over
+
+# update word_list
+
+def decode_frame(s, word_list):
+    for key in word_list:
+        word = []
+        i,j = key[0]
+        if key[1] == 0:
+            for l in range(key[2]):
+                word.append(chr(s[i,j]))
+                j += 1
+        elif key[1] == 1:
+            for l in range(key[2]):
+                word.append(chr(s[i,j]))
+                i += 1
+        word = ''.join(word)
+        word_list[key] = word
+    return word_list
+                
+
+
+def update_wordlist(s, word_list, key, new_word):
+    word_list[key] = new_word
+    i,j = key[0]
+    for l in range(len(new_word)):
+        s[i,j] = ord(new_word[l])
+        if key[0] == 0:
+            j += 1
+        elif key[0] == 1:
+            i += 1
+    word_list = decode_frame(s, word_list)
+    return word_list
+
 
 print (s)
