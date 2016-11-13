@@ -8,18 +8,6 @@ Created on Wed Nov  9 09:47:28 2016
 import numpy as np
 import random
 
-class Skeleton:
-    
-    def __init__(self):
-        pass
-    
-    def build_skeleton(skeleton):
-        return self.skeleton
-    
-    def random_fill():
-        pass
-
-
 def skeleton():
     skeleton = [[1,1,1,1,0,1,1,1,1,1,1,1,1,1,1],\
                 [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1],\
