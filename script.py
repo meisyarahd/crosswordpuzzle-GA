@@ -242,8 +242,8 @@ def update_wordlist(s, word_list, key, new_word):
             j += 1
         elif key[0] == 1:
             i += 1
-    word_list = decode_frame(s, word_list)
-    return word_list
+    new_word_list = decode_frame(s, word_list)
+    return s, new_word_list
 
 
 print (s)
