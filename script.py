@@ -216,7 +216,7 @@ for wkey in word_list:
 # update word_list
 
 def decode_frame(s, word_list):
-    for key in word_list:
+    for key, _ in word_list.items():
         word = []
         i,j = key[0]
         if key[1] == 0:
@@ -238,12 +238,10 @@ def update_wordlist(s, word_list, key, new_word):
     i,j = key[0]
     for l in range(len(new_word)):
         s[i,j] = ord(new_word[l])
-        if key[0] == 0:
+        if key[1] == 0:
             j += 1
-        elif key[0] == 1:
-            i += 1
+        elif key[1] == 1:
     new_word_list = decode_frame(s, word_list)
     return s, new_word_list
 
 
-print (s)
