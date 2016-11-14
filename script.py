@@ -169,8 +169,8 @@ parent = population[:n_parent]
 def crossover(parent_1, parent_2):
     offs_1 = copy.deepcopy(parent_1)
     offs_2 = copy.deepcopy(parent_2)
-    a = random.randint(1,len(parent_1.word_list))
-    b = random.randint(1,len(parent_2.word_list))
+    a = random.randint(1,len(parent_1.word_list)-1)
+    b = random.randint(1,len(parent_2.word_list)-1)
     idx = list(population[0].word_list.keys())
     key_1 = idx[a]
     key_2 = idx[b]
@@ -194,9 +194,11 @@ n_mutation = int(p_m*len(population[0].word_list))
 
 #%%
 mutated = copy.deepcopy(offs)
+
 for p in range(len(offs)):
     selected = random.sample(range(0,29),n_mutation)
-    sorted_keys = sorted(offs[p].word_list.keys())
+#    sorted_keys = sorted()
+    sorted_keys = list(offs[p].word_list.keys())
     letter="'"
     for q in selected:
         selected_word = offs[p].word_list[sorted_keys[q]]
@@ -205,14 +207,10 @@ for p in range(len(offs)):
             for r in range(len(suggested)):
                 if len(selected_word) == len(suggested[r]) and any(letter in kata and len(kata) > 1 for kata in suggested[r].split()) == False:
                     suggestor.add_to_session(suggested[r])
-                    selected_key = offs[p].word_list.keys()[q]
                     print suggested[r]
-                    mutated[p].word_list = offs[p].update_wordlist(selected_key,suggested[r])[1]
+                    selected_key = offs[p].word_list.keys()[q]
+                    offs[p].wordlist = offs[p].update_wordlist(selected_key,suggested[r])[1]
                     break
-                else:
-                    print ''.join(choice(ascii_uppercase) for i in range(len(selected_word)))
-                    break
-        else:
-            print ''.join(choice(ascii_uppercase) for i in range(len(selected_word)))
+#                
         
 
