@@ -140,33 +140,8 @@ class Individual:
                 penalty += 1
         self.fitness = 1/(penalty + 0.00000000001)
         return self.fitness
+        
 #%%
-# config
-
-n_individual = 10
-n_population = 10
-n_generation = 10
-p_c = 1
-p_m = 0.3
-
-s = skeleton()
-individual = Individual(s)
-# generate population
-population = []
-for i in range(n_individual):
-    x = Individual(s, grid=individual.init_grid(), word_list=individual.init_wordlist())
-    x.word_list = x.decode_grid()
-    x.fitness = x.compute_fitness()
-    population.append(x)
-key = idx = list(population[0].word_list.keys())
-
-# cross-over
-
-n_parent = int(p_c* n_individual)
-population.sort(key=lambda x: x.fitness, reverse=True)
-
-parent = population[:n_parent]
-
 def crossover(parent_1, parent_2):
     offs_1 = copy.deepcopy(parent_1)
     offs_2 = copy.deepcopy(parent_2)
@@ -181,35 +156,80 @@ def crossover(parent_1, parent_2):
     offs_2.wordlist = offs_2.update_wordlist(key_1, word_1)
     offs_1.fitness = offs_1.compute_fitness()
     offs_2.fitness = offs_2.compute_fitness()
-    return offs_1, offs_2
+    return offs_1, offs_2               
+        
+        
+#%%
+# config
 
-offs = []
-for i in range(0,n_parent,2):
-    parent_1 = parent[i]
-    parent_2 = parent[i+1]
-    offs_1, offs_2 = crossover(parent_1, parent_2)
-    offs.append(offs_1)
-    offs.append(offs_2)
-    
-n_mutation = int(p_m*len(population[0].word_list))
+n_individual = 10
+n_population = 10
+n_generation = 100
+p_c = 1
+p_m = 0.3
+
+s = skeleton()
+individual = Individual(s)
+# generate population
+population = []
+for i in range(n_individual):
+    x = Individual(s, grid=individual.init_grid(), word_list=individual.init_wordlist())
+    x.word_list = x.decode_grid()
+    x.fitness = x.compute_fitness()
+    population.append(x)
+key = idx = list(population[0].word_list.keys())
+
 
 #%%
-#mutated = copy.deepcopy(offs)
-for p in range(len(offs)):
-    selected = random.sample(range(0,29),n_mutation)
-#    sorted_keys = sorted()
-    letter="'"
-    for q in selected:
-        selected_word = offs[p].word_list[key[q]]
-        selected_key = key[q]
-        suggested = suggestor.suggest(selected_word)
-        if suggested != []:           
-            for r in range(len(suggested)):
-                if len(selected_word) == len(suggested[r]) and any(letter in kata and len(kata) > 1 for kata in suggested[r].split()) == False:
-                    suggestor.add_to_session(suggested[r])
-#                    print suggested[r]
-                    offs[p].wordlist = offs[p].update_wordlist(selected_key,suggested[r])[1]
-                    break
-#                
+for generation in range(n_generation):
+
+    # cross-over
+    
+    n_parent = int(p_c* n_individual)
+    population.sort(key=lambda x: x.fitness, reverse=True)
+    
+    parent = population[:n_parent]
+    
+    offs = []
+    for i in range(0,n_parent,2):
+        parent_1 = parent[i]
+        parent_2 = parent[i+1]
+        offs_1, offs_2 = crossover(parent_1, parent_2)
+        offs.append(offs_1)
+        offs.append(offs_2)
         
+    #%% mutation
+        
+    n_mutation = int(p_m*len(population[0].word_list))
+    
+    for p in range(len(offs)):
+        selected = random.sample(range(0,29),n_mutation)
+        letter="'"
+        for q in selected:
+            selected_word = offs[p].word_list[key[q]]
+            selected_key = key[q]
+            suggested = suggestor.suggest(selected_word)
+            if suggested != []:           
+                for r in range(len(suggested)):
+                    if len(selected_word) == len(suggested[r]) and any(letter in kata and len(kata) > 1 for kata in suggested[r].split()) == False:
+                        suggestor.add_to_session(suggested[r])
+                        #print suggested[r]
+                        offs[p].wordlist = offs[p].update_wordlist(selected_key,suggested[r])[1]
+                        offs[p].fitness = offs[p].compute_fitness()
+                        break
+    
+    
+    # elitism
+    population.extend(offs)
+    population.sort(key=lambda x: x.fitness, reverse=True)
+    population = population[:n_individual]
+    
+    # print the best
+    best = population[0]
+    chrv = np.vectorize(chr)
+    cw = chrv(best.grid)
+    
+    print ("generation:", generation+1)
+    print (int((1/best.fitness)-0.00000000001))       
+       
 
