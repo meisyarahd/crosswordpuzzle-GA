@@ -15,6 +15,9 @@ import enchant
 #US english dictionary
 suggestor = enchant.Dict('en_US')
 
+from random import choice
+from string import ascii_uppercase
+
 def skeleton():
     skeleton = [[1,1,1,1,0,1,1,1,1,1,1,1,1,1,1],\
                 [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1],\
@@ -204,12 +207,12 @@ for p in range(len(offs)):
                     suggestor.add_to_session(suggested[r])
                     selected_key = offs[p].word_list.keys()[q]
                     print suggested[r]
-                    mutated[p].word_list = offs[p].update_wordlist(selected_key,suggested[r])
+                    mutated[p].word_list = offs[p].update_wordlist(selected_key,suggested[r])[1]
                     break
                 else:
-                    print "ora"
+                    print ''.join(choice(ascii_uppercase) for i in range(len(selected_word)))
                     break
         else:
-            print "ra ono"
+            print ''.join(choice(ascii_uppercase) for i in range(len(selected_word)))
         
 
