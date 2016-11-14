@@ -7,6 +7,13 @@ Created on Wed Nov  9 09:47:28 2016
 
 import numpy as np
 import random
+import copy
+
+#pip install pyenchant
+import enchant
+
+#US english dictionary
+suggestor = enchant.Dict('en_US')
 
 def skeleton():
     skeleton = [[1,1,1,1,0,1,1,1,1,1,1,1,1,1,1],\
@@ -26,51 +33,6 @@ def skeleton():
                 [1,1,1,1,1,1,1,1,1,1,0,1,1,1,1]]
     return np.asarray(skeleton)
     
-
-#class Word:
-#    def __init__(self, loc, type, wlength, hlength):
-#        body = self.skeleton.copy()
-#        a = np.zeros((1, len(body[0])))
-#        body = np.concatenate((a, body, a), axis=0)
-#        b = np.zeros((len(body),1))
-#        body = np.concatenate((b, body, b), axis=1)
-#
-#        n_row = len(body) - 2
-#        n_col = len(body[0]) - 2   
-#        
-#        wlength = {}
-#        for i in range(1,n_row+1):
-#            for j in range(1,n_col+1):
-#                if body[i,j] == 1:
-#                    loc = (i-1, j-1)
-#                    if body[i,j-1] == 0:
-#                        wlen = 0
-#                        while body[i,j] != 0:
-#                            wlen += 1
-#                            j += 1
-#                        if wlen > 1:
-#                            wlength[loc] = wlen
-#        
-#        hlength = {}
-#        for j in range(1,n_col+1):
-#            for i in range(1,n_row+1):
-#                if body[i,j] == 1:
-#                    loc = (i-1, j-1)
-#                    if body[i-1,j] == 0:
-#                        hlen = 0
-#                        while body[i,j] != 0:
-#                            hlen += 1
-#                            i += 1
-#                        if hlen > 1:
-#                            hlength[loc] = hlen    
-#        for loc in wlength:
-#            i, j = loc
-#            key = (loc, 0, wlength[loc])
-#            word_list[loc] = None
-#        for key in hlength:
-#            i, j = key
-#            key = (loc, 1, hlength[loc])
-#            word_list[loc] = None
 
 class Individual:
     
@@ -166,15 +128,16 @@ class Individual:
         
     def compute_fitness(self):
     #    import dictionary
-        dictionary = ['BALA','SAYA','AWSHFGY','DNEIAKWIHFE','AWUE','NSAUEB']
+#        dictionary = ['BALA','SAYA','AWSHFGY','DNEIAKWIHFE','AWUE','NSAUEB']
         penalty = 0
         for key in self.word_list:
             word = self.word_list[key]
-            if word not in dictionary:
+#            if word not in dictionary:
+            if suggestor.check(word)==False:
                 penalty += 1
         self.fitness = 1/(penalty + 0.00000000001)
         return self.fitness
-
+#%%
 # config
 
 n_individual = 10
@@ -184,11 +147,11 @@ p_c = 1
 p_m = 0.3
 
 s = skeleton()
-
+individual = Individual(s)
 # generate population
 population = []
 for i in range(n_individual):
-    x = Individual(s, grid=init_grid(s), word_list=init_wordlist(s))
+    x = Individual(s, grid=individual.init_grid(), word_list=individual.init_wordlist())
     x.word_list = x.decode_grid()
     x.fitness = x.compute_fitness()
     population.append(x)
@@ -201,7 +164,6 @@ population.sort(key=lambda x: x.fitness, reverse=True)
 parent = population[:n_parent]
 
 def crossover(parent_1, parent_2):
-    import copy
     offs_1 = copy.deepcopy(parent_1)
     offs_2 = copy.deepcopy(parent_2)
     a = random.randint(1,len(parent_1.word_list))
@@ -225,8 +187,29 @@ for i in range(0,n_parent,2):
     offs.append(offs_1)
     offs.append(offs_2)
     
-n_mutation = int(p_m*n_individual*len(population[0].word_list))
+n_mutation = int(p_m*len(population[0].word_list))
 
-
-
+#%%
+mutated = copy.deepcopy(offs)
+for p in range(len(offs)):
+    selected = random.sample(range(0,29),n_mutation)
+    sorted_keys = sorted(offs[p].word_list.keys())
+    letter="'"
+    for q in selected:
+        selected_word = offs[p].word_list[sorted_keys[q]]
+        suggested = suggestor.suggest(selected_word)
+        if suggested != []:           
+            for r in range(len(suggested)):
+                if len(selected_word) == len(suggested[r]) and any(letter in kata and len(kata) > 1 for kata in suggested[r].split()) == False:
+                    suggestor.add_to_session(suggested[r])
+                    selected_key = offs[p].word_list.keys()[q]
+                    print suggested[r]
+                    mutated[p].word_list = offs[p].update_wordlist(selected_key,suggested[r])
+                    break
+                else:
+                    print "ora"
+                    break
+        else:
+            print "ra ono"
+        
 
