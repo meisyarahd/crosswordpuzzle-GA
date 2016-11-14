@@ -8,15 +8,12 @@ Created on Wed Nov  9 09:47:28 2016
 import numpy as np
 import random
 import copy
-
-#pip install pyenchant
+from random import choice
+from string import ascii_uppercase
 import enchant
 
 #US english dictionary
 suggestor = enchant.Dict('en_US')
-
-from random import choice
-from string import ascii_uppercase
 
 def skeleton():
     skeleton = [[1,1,1,1,0,1,1,1,1,1,1,1,1,1,1],\
@@ -35,7 +32,26 @@ def skeleton():
                 [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0],\
                 [1,1,1,1,1,1,1,1,1,1,0,1,1,1,1]]
     return np.asarray(skeleton)
-    
+
+def random_generator(size):
+    return ''.join(random.choice(ascii_uppercase) for x in range(size))        
+
+def crossover(parent_1, parent_2):
+    offs_1 = copy.deepcopy(parent_1)
+    offs_2 = copy.deepcopy(parent_2)
+    a = random.randint(1,len(parent_1.word_list)-1)
+    b = random.randint(1,len(parent_2.word_list)-1)
+    idx = list(population[0].word_list.keys())
+    key_1 = idx[a]
+    key_2 = idx[b]
+    word_1 = offs_1.word_list[key_1]
+    word_2 = offs_2.word_list[key_2]
+    offs_1.wordlist = offs_1.update_wordlist(key_2, word_2)
+    offs_2.wordlist = offs_2.update_wordlist(key_1, word_1)
+    offs_1.fitness = offs_1.compute_fitness()
+    offs_2.fitness = offs_2.compute_fitness()
+    return offs_1, offs_2               
+ 
 
 class Individual:
     
@@ -140,24 +156,7 @@ class Individual:
                 penalty += 1
         self.fitness = 1/(penalty + 0.00000000001)
         return self.fitness
-        
-#%%
-def crossover(parent_1, parent_2):
-    offs_1 = copy.deepcopy(parent_1)
-    offs_2 = copy.deepcopy(parent_2)
-    a = random.randint(1,len(parent_1.word_list)-1)
-    b = random.randint(1,len(parent_2.word_list)-1)
-    idx = list(population[0].word_list.keys())
-    key_1 = idx[a]
-    key_2 = idx[b]
-    word_1 = offs_1.word_list[key_1]
-    word_2 = offs_2.word_list[key_2]
-    offs_1.wordlist = offs_1.update_wordlist(key_2, word_2)
-    offs_2.wordlist = offs_2.update_wordlist(key_1, word_1)
-    offs_1.fitness = offs_1.compute_fitness()
-    offs_2.fitness = offs_2.compute_fitness()
-    return offs_1, offs_2               
-        
+               
         
 #%%
 # config
@@ -211,12 +210,18 @@ for generation in range(n_generation):
             suggested = suggestor.suggest(selected_word)
             if suggested != []:           
                 for r in range(len(suggested)):
-                    if len(selected_word) == len(suggested[r]) and any(letter in kata and len(kata) > 1 for kata in suggested[r].split()) == False:
+                    if len(selected_word) == len(suggested[r]) and any(letter in word and len(word) > 1 for word in suggested[r].split()) == False:
                         suggestor.add_to_session(suggested[r])
                         #print suggested[r]
                         offs[p].wordlist = offs[p].update_wordlist(selected_key,suggested[r])[1]
                         offs[p].fitness = offs[p].compute_fitness()
                         break
+            else:
+                new_word = list(selected_word)
+                new_word[1] = random.choice(ascii_uppercase)
+                new_word = ''.join(new_word)
+                offs[p].wordlist = offs[p].update_wordlist(selected_key,new_word)
+                offs[p].fitness = offs[p].compute_fitness()
     
     
     # elitism
