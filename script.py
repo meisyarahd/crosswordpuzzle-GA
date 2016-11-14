@@ -158,6 +158,7 @@ for i in range(n_individual):
     x.word_list = x.decode_grid()
     x.fitness = x.compute_fitness()
     population.append(x)
+key = idx = list(population[0].word_list.keys())
 
 # cross-over
 
@@ -193,22 +194,20 @@ for i in range(0,n_parent,2):
 n_mutation = int(p_m*len(population[0].word_list))
 
 #%%
-mutated = copy.deepcopy(offs)
-
+#mutated = copy.deepcopy(offs)
 for p in range(len(offs)):
     selected = random.sample(range(0,29),n_mutation)
 #    sorted_keys = sorted()
-    sorted_keys = list(offs[p].word_list.keys())
     letter="'"
     for q in selected:
-        selected_word = offs[p].word_list[sorted_keys[q]]
+        selected_word = offs[p].word_list[key[q]]
+        selected_key = key[q]
         suggested = suggestor.suggest(selected_word)
         if suggested != []:           
             for r in range(len(suggested)):
                 if len(selected_word) == len(suggested[r]) and any(letter in kata and len(kata) > 1 for kata in suggested[r].split()) == False:
                     suggestor.add_to_session(suggested[r])
-                    print suggested[r]
-                    selected_key = offs[p].word_list.keys()[q]
+#                    print suggested[r]
                     offs[p].wordlist = offs[p].update_wordlist(selected_key,suggested[r])[1]
                     break
 #                
