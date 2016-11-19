@@ -8,34 +8,61 @@ Created on Wed Nov  9 09:47:28 2016
 import numpy as np
 import random
 import copy
-from random import choice
 from string import ascii_uppercase
 import enchant
+import matplotlib.pyplot as plt
 
 #US english dictionary
 suggestor = enchant.Dict('en_US')
 
-def skeleton():
-    skeleton = [[1,1,1,1,0,1,1,1,1,1,1,1,1,1,1],\
-                [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1],\
-                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],\
-                [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1],\
-                [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1],\
-                [0,1,0,1,0,1,0,1,0,1,0,1,0,0,1],\
-                [1,1,1,1,1,1,0,1,1,1,1,1,1,1,1],\
-                [0,0,0,1,0,1,0,1,0,1,0,1,0,0,0],\
-                [1,1,1,1,1,1,1,1,0,1,1,1,1,1,1],\
-                [1,0,0,1,0,1,0,1,0,1,0,1,0,1,0],\
-                [1,1,1,1,1,0,1,1,1,1,1,1,1,1,1],\
-                [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0],\
-                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],\
-                [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0],\
-                [1,1,1,1,1,1,1,1,1,1,0,1,1,1,1]]
+def skeleton(x):
+    if x == 1:
+        skeleton = [[1,1,1,1,0,1,1,1,1,1,1,1,1,1,1],
+                    [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1],
+                    [1,1,1,1,1,1,1,1,1,0,1,1,1,1,1],
+                    [0,1,0,1,0,1,0,1,0,1,0,1,0,0,1],
+                    [1,1,1,1,1,1,0,1,1,1,1,1,1,1,1],
+                    [0,0,0,1,0,1,0,1,0,1,0,1,0,0,0],
+                    [1,1,1,1,1,1,1,1,0,1,1,1,1,1,1],
+                    [1,0,0,1,0,1,0,1,0,1,0,1,0,1,0],
+                    [1,1,1,1,1,0,1,1,1,1,1,1,1,1,1],
+                    [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    [1,0,1,0,1,0,1,0,0,1,0,1,0,1,0],
+                    [1,1,1,1,1,1,1,1,1,1,0,1,1,1,1]]
+    elif x == 2:
+        skeleton = [[1,1,1,1,1,0,1,1,1,1,0,0,1,1,1],
+                    [1,1,1,1,1,0,1,1,1,1,0,1,1,1,1],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    [0,0,0,1,1,1,1,1,0,1,1,1,1,1,1],
+                    [1,1,1,0,1,1,1,0,1,1,1,0,1,1,1],
+                    [1,1,1,1,1,1,0,1,1,1,1,1,0,0,0],
+                    [1,1,1,1,0,1,1,1,1,0,1,1,1,1,1],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    [1,1,1,1,1,0,1,1,1,1,0,1,1,1,1],
+                    [0,0,0,1,1,1,1,1,0,1,1,1,1,1,1],
+                    [1,1,1,0,1,1,1,0,1,1,1,0,1,1,1],
+                    [1,1,1,1,1,1,0,1,1,1,1,1,0,0,0],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    [1,1,1,1,0,1,1,1,1,0,1,1,1,1,1],
+                    [1,1,1,0,0,1,1,1,1,0,1,1,1,1,1]]
+    
+    elif x == 3:
+        skeleton = [[0,1,1,1,1,1,1,1,1,1,0],
+                    [1,0,1,0,1,0,1,0,1,0,1],
+                    [1,1,1,1,1,0,1,1,1,1,1],
+                    [1,0,1,0,1,1,1,0,1,0,1],
+                    [1,1,1,1,1,0,1,1,1,1,1],
+                    [1,0,0,1,0,0,0,1,0,0,1],
+                    [1,1,1,1,1,0,1,1,1,1,1],
+                    [1,0,1,0,1,1,1,0,1,0,1],
+                    [1,1,1,1,1,0,1,1,1,1,1],
+                    [1,0,1,0,1,0,1,0,1,0,1],
+                    [0,1,1,1,1,1,1,1,1,1,0]]
     return np.asarray(skeleton)
-
-def random_generator(size):
-    return ''.join(random.choice(ascii_uppercase) for x in range(size))        
-
+       
 def crossover(parent_1, parent_2):
     offs_1 = copy.deepcopy(parent_1)
     offs_2 = copy.deepcopy(parent_2)
@@ -146,12 +173,9 @@ class Individual:
         return self.grid, self.word_list
         
     def compute_fitness(self):
-    #    import dictionary
-#        dictionary = ['BALA','SAYA','AWSHFGY','DNEIAKWIHFE','AWUE','NSAUEB']
         penalty = 0
         for key in self.word_list:
             word = self.word_list[key]
-#            if word not in dictionary:
             if suggestor.check(word)==False:
                 penalty += 1
         self.fitness = 1/(penalty + 0.00000000001)
@@ -159,16 +183,17 @@ class Individual:
                
         
 #%%
-# config
+# parameter configuration
 
 n_individual = 10
-n_population = 10
 n_generation = 100
 p_c = 1
-p_m = 0.3
+p_m = 0.1
 
-s = skeleton()
+# select skeleton
+s = skeleton(1) 
 individual = Individual(s)
+
 # generate population
 population = []
 for i in range(n_individual):
@@ -178,8 +203,18 @@ for i in range(n_individual):
     population.append(x)
 key = idx = list(population[0].word_list.keys())
 
+n_words = len(population[0].word_list)
+
+# print
+print ("Algorithm is running for", n_generation, "generations")
+print ("Number of individual generated is", n_individual)
+print ("Crossover probability:", p_c)
+print ("Mutation probability:", p_m)
+print ("Total number of words in the grid:", n_words)
 
 #%%
+list_penalty = []
+
 for generation in range(n_generation):
 
     # cross-over
@@ -197,12 +232,12 @@ for generation in range(n_generation):
         offs.append(offs_1)
         offs.append(offs_2)
         
-    #%% mutation
+    # mutation
         
-    n_mutation = int(p_m*len(population[0].word_list))
+    n_mutation = int(p_m*n_words)
     
     for p in range(len(offs)):
-        selected = random.sample(range(0,29),n_mutation)
+        selected = random.sample(range(0,n_words),n_mutation)
         letter="'"
         for q in selected:
             selected_word = offs[p].word_list[key[q]]
@@ -224,17 +259,32 @@ for generation in range(n_generation):
                 offs[p].fitness = offs[p].compute_fitness()
     
     
-    # elitism
+    # generation survivor -- elitism
     population.extend(offs)
     population.sort(key=lambda x: x.fitness, reverse=True)
     population = population[:n_individual]
     
-    # print the best
+    # get the best individual
     best = population[0]
     chrv = np.vectorize(chr)
     cw = chrv(best.grid)
     
-    print ("generation:", generation+1)
-    print (int((1/best.fitness)-0.00000000001))       
+    # print penalty
+    list_penalty.append(int(1/best.fitness))
+    print ("Generation:", generation+1, "\t Wrong words:", int((1/best.fitness)-0.00000000001))
+
+
+#%% 
+
+#print the best grid  
+print ("BEST INDIVIDUAL")
+print (cw)
+
+# plot penalty by generation
+plt.plot(list_penalty)
+plt.xlabel('Generation')
+plt.ylabel('Penalty')
+plt.title('Penalty Plot')
+plt.show() 
        
 
