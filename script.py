@@ -16,6 +16,12 @@ import matplotlib.pyplot as plt
 suggestor = enchant.Dict('en_US')
 
 def skeleton(x):
+    """Define skeleton (grid) of the crossword based on hard-coding
+    
+    1 represents white block which can be filled with letter
+    0 represents black block which can't be filled with letter
+    :param x: number pointing available skeleton on this project. dtype: int
+    """
     if x == 1:
         skeleton = [[1,1,1,1,0,1,1,1,1,1,1,1,1,1,1],
                     [0,1,0,1,0,1,0,0,1,0,1,0,1,0,1],
@@ -64,6 +70,16 @@ def skeleton(x):
     return np.asarray(skeleton)
        
 def crossover(parent_1, parent_2):
+    """Cross-over process of genetic algorithm
+    
+    Parents are duplicated into their own offspring. 
+    A word in each offspring is randomly selected to be interchanged based on its position.
+    
+    :param parent_1: first parent. dtype: class Individual instance
+    :param parent_2: second parent. dtype: class Individual instance
+    
+    return first offspring and second offspring
+    """
     offs_1 = copy.deepcopy(parent_1)
     offs_2 = copy.deepcopy(parent_2)
     a = random.randint(1,len(parent_1.word_list)-1)
@@ -80,15 +96,44 @@ def crossover(parent_1, parent_2):
     return offs_1, offs_2               
  
 
-class Individual:
+class Individual(object):
+    """Individual or chromosome
+    
+    :param skeleton: skeleton used for the crossword. dtype: numpy array
+    :param grid: grid filled with numbers representing letters. dtype: numpy array
+    :param word_list: words formed by the grid. dtype: dictionary
+    
+    """
     
     def __init__(self, skeleton, grid=[], word_list={}, fitness=0):
         self.skeleton = skeleton
         self.grid = grid
         self.word_list = word_list
         self.fitness = fitness
+    
+    def init_grid(self):
+        """Initialize grid filled with random integer representing letter
+        
+        return crossword grid of individual. dtype: numpy array
+        """
+        self.grid = self.skeleton.copy()
+        for i in range(len(self.grid)):
+            for j in range(len(self.grid[0])):
+                if self.grid[i,j] == 1:
+                    self.grid[i,j] = random.randint(65,90)
+        return self.grid
         
     def init_wordlist(self):
+        """Initialize word_list
+        
+        Defining dictionary with key ((x,y), direction, length) and value word
+        : (x,y) is index in the grid of the first letter
+        : direction is {0,1} represents across or down
+        : length is the word length
+        : word is string of letters formed by decoding the grid based on the key
+        
+        return word list of individual. dtype: dictionary     
+        """
         body = self.skeleton.copy()
         a = np.zeros((1, len(body[0])))
         body = np.concatenate((a, body, a), axis=0)
@@ -136,15 +181,11 @@ class Individual:
         self.word_list = self.decode_grid()
         return self.word_list
     
-    def init_grid(self):
-        self.grid = self.skeleton.copy()
-        for i in range(len(self.grid)):
-            for j in range(len(self.grid[0])):
-                if self.grid[i,j] == 1:
-                    self.grid[i,j] = random.randint(65,90)
-        return self.grid
-    
     def decode_grid(self):
+        """Get list of words formed by the grid
+        
+        return word_list represented as dictionary
+        """
         for key, _ in self.word_list.items():
             word = []
             i,j = key[0]
@@ -161,6 +202,13 @@ class Individual:
         return self.word_list        
     
     def update_wordlist(self, key, new_word):
+        """Update current grid and word_list given a new word
+        
+        :param key: referring a word location in word_list
+        :param new_word: word replacing current word on a location (key)
+        
+        return updated grid and word_list
+        """
         self.word_list[key] = new_word
         i,j = key[0]
         for l in range(len(new_word)):
@@ -173,6 +221,14 @@ class Individual:
         return self.grid, self.word_list
         
     def compute_fitness(self):
+        """Compute fitness of Individual
+        
+        penalty is added 1 if word is not found in dictionary
+        fitness = 1/(penalty + 0.00000000001)
+        objective = max(fitness) = min(penalty)
+        
+        return fitness value
+        """
         penalty = 0
         for key in self.word_list:
             word = self.word_list[key]
@@ -201,7 +257,7 @@ for i in range(n_individual):
     x.word_list = x.decode_grid()
     x.fitness = x.compute_fitness()
     population.append(x)
-key = idx = list(population[0].word_list.keys())
+key = list(population[0].word_list.keys())
 
 n_words = len(population[0].word_list)
 
