@@ -6,8 +6,10 @@ A solution to form crossword puzzle given a fixed grid using Genetic Algorithm
 ## Crossword grids:
 
 ![grid1](./skeleton1.png)
+
 ![grid2](./skeleton2.png)
-![grid3](./skeleton3.png)
+
+![grid3](./skeleton3.jpg)
 
 
 ## Chromosome Representation:
